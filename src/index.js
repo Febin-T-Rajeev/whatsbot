@@ -31,6 +31,9 @@ const commands = [
   '- quote',
   '- random pic',
   '- commands',
+  '- verse',
+  '- "word" meaning',
+  '- random password'
 ];
 
 // Route for WhatsApp
@@ -73,13 +76,57 @@ webApp.post('/whatsapp', async (req, res) => {
     }
   } else if (message.toLowerCase() === 'commands') {
     response = `Available commands:\n${commands.join('\n')}`;
-  } else {
+  }
+  else if (message.toLowerCase() === 'verse') {
+    try {
+      const apiResponse = await axios.get('https://beta.ourmanna.com/api/v1/get/?format=json');
+      const { verse, reference } = apiResponse.data.verse.details;
+      response = `${verse} - ${reference}`;
+    } catch (error) {
+      console.log(`Error fetching Bible verse from API: ${error.message}`);
+      response = 'Sorry, I could not fetch a Bible verse at the moment. Please try again later.';
+    }
+  }
+  else if (message.toLowerCase().endsWith(' meaning')) {
+    const word = message.toLowerCase().replace(' meaning', '');
+    try {
+      const apiResponse = await axios.get(`https://wordsapiv1.p.rapidapi.com/words/${word}/definitions`, {
+        headers: {
+          'x-rapidapi-host': 'wordsapiv1.p.rapidapi.com',
+          'x-rapidapi-key': process.env.WORDS_API_KEY
+        }
+      });
+      if (apiResponse.data.definitions && apiResponse.data.definitions.length > 0) {
+        const firstDefinition = apiResponse.data.definitions[0];
+        response = `${word}: ${firstDefinition.definition}`;
+      } else {
+        response = `Sorry, I could not find the meaning of "${word}".`;
+      }
+    } catch (error) {
+      console.log(`Error fetching word meaning from API: ${error.message}`);
+      response = 'Sorry, I could not fetch the meaning of the word at the moment. Please try again later.';
+    }
+  }
+  else if (message.toLowerCase() === 'random password') {
+    response = generatePassword();
+  }
+  else {
     response = "Sorry, I didn't understand that.";
   }
 
   await WA.sendMessage(response, senderID);
   res.status(200).send();
 });
+
+function generatePassword() {
+  const length = 12;
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+  let password = '';
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    password += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return password;
+}
 
 
 
