@@ -30,10 +30,8 @@ const commands = [
   '- joke',
   '- quote',
   '- random pic',
-  '- commands',
-  '- verse',
-  '- "word" meaning',
-  '- random password'
+  '- random password',
+  '- help',
 ];
 
 // Route for WhatsApp
@@ -74,39 +72,11 @@ webApp.post('/whatsapp', async (req, res) => {
       console.log(`Error fetching picture from API: ${error.message}`);
       response = 'Sorry, I could not fetch a picture at the moment. Please try again later.';
     }
-  } else if (message.toLowerCase() === 'commands') {
+  } else if (message.toLowerCase() === 'help') {
     response = `Available commands:\n${commands.join('\n')}`;
   }
-  else if (message.toLowerCase() === 'verse') {
-    try {
-      const apiResponse = await axios.get('https://beta.ourmanna.com/api/v1/get/?format=json');
-      const { verse, reference } = apiResponse.data.verse.details;
-      response = `${verse} - ${reference}`;
-    } catch (error) {
-      console.log(`Error fetching Bible verse from API: ${error.message}`);
-      response = 'Sorry, I could not fetch a Bible verse at the moment. Please try again later.';
-    }
-  }
-  else if (message.toLowerCase().endsWith(' meaning')) {
-    const word = message.toLowerCase().replace(' meaning', '');
-    try {
-      const apiResponse = await axios.get(`https://wordsapiv1.p.rapidapi.com/words/${word}/definitions`, {
-        headers: {
-          'x-rapidapi-host': 'wordsapiv1.p.rapidapi.com',
-          'x-rapidapi-key': process.env.WORDS_API_KEY
-        }
-      });
-      if (apiResponse.data.definitions && apiResponse.data.definitions.length > 0) {
-        const firstDefinition = apiResponse.data.definitions[0];
-        response = `${word}: ${firstDefinition.definition}`;
-      } else {
-        response = `Sorry, I could not find the meaning of "${word}".`;
-      }
-    } catch (error) {
-      console.log(`Error fetching word meaning from API: ${error.message}`);
-      response = 'Sorry, I could not fetch the meaning of the word at the moment. Please try again later.';
-    }
-  }
+  
+  
   else if (message.toLowerCase() === 'random password') {
     response = generatePassword();
   }
