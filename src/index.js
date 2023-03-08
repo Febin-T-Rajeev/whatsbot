@@ -32,6 +32,8 @@ const commands = [
   '- random pic',
   '- random password',
   '- help',
+  '- gk',
+  '- poem'
 ];
 
 // Route for WhatsApp
@@ -55,7 +57,29 @@ webApp.post('/whatsapp', async (req, res) => {
       console.log(`Error fetching joke from API: ${error.message}`);
       response = 'Sorry, I could not fetch a joke at the moment. Please try again later.';
     }
-  } else if (message.toLowerCase() === 'quote') {
+  } 
+    else if (message.toLowerCase().includes('poem')) {
+
+  try {
+
+    const apiResponse = await axios.get('https://poetrydb.org/random/1');
+
+    const { title, lines, author } = apiResponse.data[0];
+
+    const content = lines.join('\n');
+
+    response = `"${title}" by ${author}\n\n${content}`;
+
+  } catch (error) {
+
+    console.log(`Error fetching poem from API: ${error.message}`);
+
+    response = 'Sorry, I could not fetch a poem at the moment. Please try again later.';
+
+  }
+
+}
+    else if (message.toLowerCase() === 'quote') {
     try {
       const apiResponse = await axios.get('https://api.quotable.io/random');
       const { content, author } = apiResponse.data;
