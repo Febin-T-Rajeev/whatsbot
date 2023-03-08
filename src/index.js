@@ -99,6 +99,20 @@ webApp.post('/whatsapp', async (req, res) => {
   } else if (message.toLowerCase() === 'help') {
     response = `Available commands:\n${commands.join('\n')}`;
   }
+  else if (message.toLowerCase().endsWith('chatgpt')) {
+    try {
+      // Call ChatGPT API to generate a response
+      const chatGPTResponse = await axios.post('http://chatgpt-api-url', {
+        message: message
+      });
+      
+      // Extract the response from the ChatGPT API and send it back to the user
+      response = chatGPTResponse.data.response;
+    } catch (error) {
+      console.log(`Error fetching response from ChatGPT API: ${error.message}`);
+      response = 'Sorry, I could not generate a response at the moment. Please try again later.';
+    }
+  }
   else if (message.toLowerCase().includes('gk')) {
 
   try {
