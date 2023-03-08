@@ -75,7 +75,25 @@ webApp.post('/whatsapp', async (req, res) => {
   } else if (message.toLowerCase() === 'help') {
     response = `Available commands:\n${commands.join('\n')}`;
   }
-  
+  else if (message.toLowerCase().includes('gk')) {
+
+  try {
+
+    const apiResponse = await axios.get('https://api.gkapi.com/random');
+
+    const { content } = apiResponse.data;
+
+    response = content;
+
+  } catch (error) {
+
+    console.log(`Error fetching general knowledge from API: ${error.message}`);
+
+    response = 'Sorry, I could not fetch a random general knowledge fact at the moment. Please try again later.';
+
+  }
+
+}
   
   else if (message.toLowerCase() === 'random password') {
     response = generatePassword();
