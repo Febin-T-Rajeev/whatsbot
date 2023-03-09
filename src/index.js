@@ -32,7 +32,6 @@ const commands = [
   '- random pic',
   '- random password',
   '- help',
-  '- gk',
   '- poem'
 ];
 
@@ -44,6 +43,7 @@ webApp.post('/whatsapp', async (req, res) => {
   console.log(`Message received: "${message}" from ${senderID}`);
 
   let response = '';
+   
   if (message.toLowerCase() === 'hello') {
     response = 'Hello, how are you?';
   } else if (message.toLowerCase() === 'hai') {
@@ -58,6 +58,15 @@ webApp.post('/whatsapp', async (req, res) => {
       response = 'Sorry, I could not fetch a joke at the moment. Please try again later.';
     }
   } 
+    else if (message.toLowerCase() === 'fact') {
+    try {
+      const apiResponse = await axios.get('https://uselessfacts.jsph.pl/random.json');
+      response = apiResponse.data.text;
+    } catch (error) {
+      console.log(`Error fetching fact from API: ${error.message}`);
+      response = 'Sorry, I could not fetch a fact at the moment. Please try again later.';
+    }
+  }
     else if (message.toLowerCase().includes('poem')) {
 
   try {
@@ -99,40 +108,8 @@ webApp.post('/whatsapp', async (req, res) => {
   } else if (message.toLowerCase() === 'help') {
     response = `Available commands:\n${commands.join('\n')}`;
   }
-  else if (message.toLowerCase().endsWith('chatgpt')) {
-    try {
-      // Call ChatGPT API to generate a response
-      const chatGPTResponse = await axios.post('http://chatgpt-api-url', {
-        message: message
-      });
-      
-      // Extract the response from the ChatGPT API and send it back to the user
-      response = chatGPTResponse.data.response;
-    } catch (error) {
-      console.log(`Error fetching response from ChatGPT API: ${error.message}`);
-      response = 'Sorry, I could not generate a response at the moment. Please try again later.';
-    }
-  }
-  else if (message.toLowerCase().includes('gk')) {
-
-  try {
-
-    const apiResponse = await axios.get('https://api.gkapi.com/random');
-
-    const { content } = apiResponse.data;
-
-    response = content;
-
-  } catch (error) {
-
-    console.log(`Error fetching general knowledge from API: ${error.message}`);
-
-    response = 'Sorry, I could not fetch a random general knowledge fact at the moment. Please try again later.';
-
-  }
-
-}
   
+ 
   else if (message.toLowerCase() === 'random password') {
     response = generatePassword();
   }
